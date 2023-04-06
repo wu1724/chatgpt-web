@@ -55,6 +55,22 @@ setInterval(() => {
 	}
 	// global.console.log(apiCanUse)
 }, 1000)
+//定时刷新余额状态
+setInterval(()=>{
+	for (let apiKey in apiKeyMap){
+		if(apiKeyMap[apiKey].status){
+			fetchBalance(apiKey).then(res => {
+				// global.console.log(res)
+				apiKeyMap[apiKey]['usage'] = res
+				if (res < 0 || res > 5) {
+					apiKeyMap[apiKey]['status'] = false
+				}
+				else apiKeyMap[apiKey]['status'] = true
+			})
+		}
+	}
+})
+
 // setTimeout(()=>{
 // global.console.log(apiKeyMap)
 // },10000)
@@ -163,7 +179,14 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 
 router.get('/apiKeyStatus', auth, async (req, res) => {
 	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify(apiKeyMap, null, 2))
+	let tmp = {}
+	for(let i in apiKeyMap){
+		let str = i.substring(0,12) + '*********************************' + i.substring(45)
+		tmp[str] = {}
+		tmp[str].status = apiKeyMap[i].status
+		tmp[str].usage = apiKeyMap[i].usage
+	}
+	res.send(JSON.stringify(tmp, null, 2))
 })
 
 router.get('/check', auth, async (req, res) => {
