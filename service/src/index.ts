@@ -155,7 +155,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			},
 			systemMessage,
 			apiKey
-		})
+		}, req.ip)
 		apiKeyStatus = true
 	}
 	catch (error) {
