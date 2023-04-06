@@ -143,7 +143,6 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 	//根据ip固定请求的apikey
 	let ip = getClientIp(req)
 	let apiKey = getApiKey(ip)
-	global.console.log('ip：' + req.ip, ip, '\nips:' + req.ips, ' apikey为：' + apiKey)
 
 	//如果没有获取到apikey，直接返回
 	if(!isNotEmptyString(apiKey)){
@@ -170,7 +169,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			},
 			systemMessage,
 			apiKey
-		}, req.ip)
+		}, ip)
 		apiKeyStatus = true
 	}
 	catch (error) {
@@ -179,7 +178,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			global.console.log("移除无效key：" + apiKey)
 			removeApiKey(apiKey)
 			apiKeyMap[apiKey].status = false
-			ipToApi[req.ip] = null
+			ipToApi[ip] = null
 			res.status(429).send()
 		}
 		else
