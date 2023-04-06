@@ -115,6 +115,19 @@ function readFromLocal() : object{
 	return {}
 }
 
+function getClientIp(req) {
+  const xForwardedFor = req.headers['x-forwarded-for'];
+  if (xForwardedFor) {
+    const ips = xForwardedFor.split(',');
+    return ips[0];
+  }
+  const xRealIp = req.headers['x-real-ip'];
+  if (xRealIp) {
+    return xRealIp;
+  }
+  return req.connection.remoteAddress;
+}
+
 
 app.use(express.static('public'))
 app.use(express.json())
@@ -128,8 +141,9 @@ app.all('*', (_, res, next) => {
 
 router.post('/chat-process', [auth, limiter], async (req, res) => {
 	//根据ip固定请求的apikey
-	let apiKey = getApiKey(req.ip)
-	global.console.log('ip为：' + req.ip, ' apikey为：' + apiKey)
+	let ip = getClientIp(req)
+	let apiKey = getApiKey(ip)
+	global.console.log('ip：' + req.ip, ip, '\nips:' + req.ips, ' apikey为：' + apiKey)
 
 	//如果没有获取到apikey，直接返回
 	if(!isNotEmptyString(apiKey)){
