@@ -7,7 +7,7 @@ import Footer from './Footer.vue'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { PromptStore } from '@/components/common'
-
+import zanzhu from '@/assets/zanzhu.png'
 const appStore = useAppStore()
 const chatStore = useChatStore()
 
@@ -84,6 +84,11 @@ watch(
             {{ $t('store.siderButton') }}
           </NButton>
         </div>
+
+				<div class="p-4">
+					<a target="_blank" href="https://afdian.net/a/wu1724/plan"><img :src="zanzhu"></a>
+				</div>
+				<p class="p-4">如果无法使用，出现429错误，及时在交流群反馈</p>
       </main>
       <Footer />
     </div>

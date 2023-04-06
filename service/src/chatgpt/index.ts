@@ -26,6 +26,7 @@ const ErrorCodeMessage: Record<string, string> = {
 const timeoutMs: number = !isNaN(+process.env.TIMEOUT_MS) ? +process.env.TIMEOUT_MS : 30 * 1000
 const disableDebug: boolean = process.env.OPENAI_API_DISABLE_DEBUG === 'true'
 
+
 let apiModel: ApiModel
 
 if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.env.OPENAI_ACCESS_TOKEN))
@@ -90,7 +91,12 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
+	setupProxy(options)
+	global.console.log(options)
+	let myapi = new ChatGPTAPI({ ...options })
+	// global.console.log(options, myapi)
   const { message, lastContext, process, systemMessage } = options
+
   try {
     let options: SendMessageOptions = { timeoutMs }
 
@@ -106,7 +112,7 @@ async function chatReplyProcess(options: RequestOptions) {
         options = { ...lastContext }
     }
 
-    const response = await api.sendMessage(message, {
+    const response = await myapi.sendMessage(message, {
       ...options,
       onProgress: (partialResponse) => {
         process?.(partialResponse)
