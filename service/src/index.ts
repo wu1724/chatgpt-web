@@ -8,10 +8,9 @@ import { isNotEmptyString } from './utils/is'
 import { fetchBalance } from './utils'
 import { rand } from '@vueuse/core'
 import localApiKeyMap from 'apiKeyMap.json'
-
+import fs from 'fs'
 const app = express()
 const router = express.Router()
-const fs = require('fs')
 const localFileName = 'apiKeyMap.json'
 let apiKeyStatus = true
 let apiKeys = process.env.OPENAI_API_KEY.split("\n")
