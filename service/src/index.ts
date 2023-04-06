@@ -57,16 +57,16 @@ setInterval(() => {
 //定时刷新余额状态
 setInterval(()=>{
 	for (let apiKey in apiKeyMap){
-		if(apiKeyMap[apiKey].status){
-			fetchBalance(apiKey).then(res => {
-				// global.console.log(res)
-				apiKeyMap[apiKey]['usage'] = res
-				if (res < 0 || res > 5) {
-					apiKeyMap[apiKey]['status'] = false
-				}
-				else apiKeyMap[apiKey]['status'] = true
-			})
-		}
+		// if(apiKeyMap[apiKey].status){
+		fetchBalance(apiKey).then(res => {
+			// global.console.log(res)
+			apiKeyMap[apiKey]['usage'] = res
+			if (res < 0 || res > 5) {
+				apiKeyMap[apiKey]['status'] = false
+			}
+			else apiKeyMap[apiKey]['status'] = true
+		})
+		// }
 	}
 }, 60000)
 
@@ -199,6 +199,16 @@ router.get('/apiKeyStatus', auth, async (req, res) => {
 		tmp[str] = {}
 		tmp[str].status = apiKeyMap[i].status
 		tmp[str].usage = apiKeyMap[i].usage
+	}
+	res.send(JSON.stringify(tmp, null, 2))
+})
+
+router.get('/ipToApi', auth, async (req, res) => {
+	res.setHeader('Content-Type', 'application/json');
+	let tmp = {}
+	for(let i in ipToApi){
+		let str = ipToApi[i].substring(0,12) + '*********************************' + i.substring(45)
+		tmp[i] = str
 	}
 	res.send(JSON.stringify(tmp, null, 2))
 })

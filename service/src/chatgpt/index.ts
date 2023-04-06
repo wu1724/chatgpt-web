@@ -123,7 +123,6 @@ async function chatReplyProcess(options : RequestOptions, ip) {
 				process?.(partialResponse)
 			},
 		})
-
 		return sendResponse({ type: 'Success', data: response })
 	}
 	catch (error : any) {

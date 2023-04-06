@@ -85,10 +85,10 @@ watch(
           </NButton>
         </div>
 
-				<div class="p-4">
+				<!-- <div class="p-4">
 					<a target="_blank" href="https://afdian.net/a/wu1724/plan"><img :src="zanzhu"></a>
-				</div>
-				<p class="p-4">如果无法使用，出现429错误，及时在交流群反馈</p>
+				</div> -->
+				<p class="p-4">如果无法使用，可以进交流群进行反馈，会第一时间处理</p>
       </main>
       <Footer />
     </div>
