@@ -129,6 +129,7 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
 	//根据ip固定请求的apikey
 	let apiKey = getApiKey(req.ip)
+	global.console.log('ip为：' + req.ip, ' apikey为：' + apiKey)
 
 	//如果没有获取到apikey，直接返回
 	if(!isNotEmptyString(apiKey)){
