@@ -68,7 +68,7 @@ setInterval(()=>{
 			})
 		}
 	}
-})
+}, 60000)
 
 // setTimeout(()=>{
 // global.console.log(apiKeyMap)
@@ -132,6 +132,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 
 	//如果没有获取到apikey，直接返回
 	if(!isNotEmptyString(apiKey)){
+		apiKeyStatus = false
 		res.send({
 		  message: "暂时不可用，请联系管理员",
 		  data: null,
@@ -168,7 +169,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 		}
 		else
 			res.status(502).send()
-		apiKeyStatus = false
+		// apiKeyStatus = false
 		// res.write(JSON.stringify(error))
 	}
 	finally {
