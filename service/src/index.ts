@@ -5,7 +5,7 @@ import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
-import { fetchBalance } from './utils'
+import { fetchBalance, checkBilling } from './utils'
 import { rand } from '@vueuse/core'
 import localApiKeyMap from 'apiKeyMap.json'
 import fs from 'fs'
@@ -16,7 +16,7 @@ let apiKeyStatus = true
 let apiKeys = process.env.OPENAI_API_KEY.split("\n")
 // global.console.log(process.env.OPENAI_API_KEY)
 let apiKeyMap = {}
-if(localApiKeyMap){
+if (localApiKeyMap) {
 	let { default: _, ...tmp } = localApiKeyMap;
 	apiKeyMap = tmp
 }
@@ -26,7 +26,7 @@ let ipToApi = {}
 
 //遍历环境变量中的所有apikey，添加到apiKeyMap中，通过查询已使用额度来确定是否有效
 apiKeys.forEach(e => {
-	if(!apiKeyMap[e])
+	if (!apiKeyMap[e])
 		apiKeyMap[e] = {}
 	// apiKeyMap[e]['status'] = true
 	fetchBalance(e).then(res => {
@@ -55,32 +55,34 @@ setInterval(() => {
 	// global.console.log(apiCanUse)
 }, 1000)
 //定时刷新余额状态
-setInterval(()=>{
-	for (let apiKey in apiKeyMap){
+setInterval(() => {
+	for (let apiKey in apiKeyMap) {
 		// if(apiKeyMap[apiKey].status){
-		fetchBalance(apiKey).then(res => {
+		checkBilling(apiKey).then(res => {
 			// global.console.log(res)
-			apiKeyMap[apiKey]['usage'] = res
-			if (res < 0 || res > 5) {
+			apiKeyMap[apiKey]['total'] = res[0]
+			apiKeyMap[apiKey]['usage'] = res[1]
+			apiKeyMap[apiKey]['remain'] = res[2]
+			if (res[2] < 0) {
 				apiKeyMap[apiKey]['status'] = false
 			}
 			else apiKeyMap[apiKey]['status'] = true
 		})
 		// }
 	}
-}, 60000)
+}, 10000)
 
 // setTimeout(()=>{
 // global.console.log(apiKeyMap)
 // },10000)
 
-setInterval(()=>{
+setInterval(() => {
 	saveToLocal()
 	// global.console.log('保存到本地')
 }, 60000)
 
 function getApiKey(ip) {
-	if(apiCanUse.length == 0) return ''
+	if (apiCanUse.length == 0) return ''
 	let apiKey = ipToApi[ip]
 	if (!apiKey) {
 		apiKey = apiCanUse[Math.floor(Math.random() * apiCanUse.length)]
@@ -97,37 +99,36 @@ function removeApiKey(apikey) {
 	}
 }
 
-function saveToLocal(){
-	fs.writeFile(localFileName, JSON.stringify(apiKeyMap), function(err) {
-	  if (err) throw err;
+function saveToLocal() {
+	fs.writeFile(localFileName, JSON.stringify(apiKeyMap), function (err) {
+		if (err) throw err;
 	});
 }
 
-function readFromLocal() : object{
+function readFromLocal() : object {
 	let dt = ''
-	fs.readFile(localFileName, function(err, data) {
+	fs.readFile(localFileName, function (err, data) {
 		global.console.log(err, data)
 		dt = err ? '' : data
 	});
-	if(isNotEmptyString(dt))
+	if (isNotEmptyString(dt))
 		global.console.log(JSON.parse(dt))
-		return JSON.parse(dt)
+	return JSON.parse(dt)
 	return {}
 }
 
 function getClientIp(req) {
-  const xForwardedFor = req.headers['x-forwarded-for'];
-  if (xForwardedFor) {
-    const ips = xForwardedFor.split(',');
-    return ips[0];
-  }
-  const xRealIp = req.headers['x-real-ip'];
-  if (xRealIp) {
-    return xRealIp;
-  }
-  return req.connection.remoteAddress;
+	const xForwardedFor = req.headers['x-forwarded-for'];
+	if (xForwardedFor) {
+		const ips = xForwardedFor.split(',');
+		return ips[0];
+	}
+	const xRealIp = req.headers['x-real-ip'];
+	if (xRealIp) {
+		return xRealIp;
+	}
+	return req.connection.remoteAddress;
 }
-
 
 app.use(express.static('public'))
 app.use(express.json())
@@ -145,12 +146,12 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 	let apiKey = getApiKey(ip)
 
 	//如果没有获取到apikey，直接返回
-	if(!isNotEmptyString(apiKey)){
+	if (!isNotEmptyString(apiKey)) {
 		apiKeyStatus = false
 		res.send({
-		  message: "暂时不可用，请联系管理员",
-		  data: null,
-		  status: "Failed",
+			message: "暂时不可用，请联系管理员",
+			data: null,
+			status: "Failed",
 		})
 		return
 	}
@@ -194,11 +195,13 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 router.get('/apiKeyStatus', auth, async (req, res) => {
 	res.setHeader('Content-Type', 'application/json');
 	let tmp = {}
-	for(let i in apiKeyMap){
-		let str = i.substring(0,12) + '*********************************' + i.substring(45)
+	for (let i in apiKeyMap) {
+		let str = i.substring(0, 12) + '*********************************' + i.substring(45)
 		tmp[str] = {}
 		tmp[str].status = apiKeyMap[i].status
+		tmp[str].total = apiKeyMap[i].total
 		tmp[str].usage = apiKeyMap[i].usage
+		tmp[str].remain = apiKeyMap[i].remain
 	}
 	res.send(JSON.stringify(tmp, null, 2))
 })
@@ -206,8 +209,8 @@ router.get('/apiKeyStatus', auth, async (req, res) => {
 router.get('/ipToApi', auth, async (req, res) => {
 	res.setHeader('Content-Type', 'application/json');
 	let tmp = {}
-	for(let i in ipToApi){
-		let str = ipToApi[i].substring(0,12) + '*********************************' + i.substring(45)
+	for (let i in ipToApi) {
+		let str = ipToApi[i].substring(0, 12) + '*********************************' + ipToApi[i].substring(45)
 		tmp[i] = str
 	}
 	res.send(JSON.stringify(tmp, null, 2))
