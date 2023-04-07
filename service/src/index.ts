@@ -179,15 +179,15 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 	}
 	catch (error) {
 		// global.console.log(error)
-		if (error.message.indexOf('insufficient_quota') != -1) {
-			global.console.log("移除无效key：" + apiKey)
-			removeApiKey(apiKey)
-			apiKeyMap[apiKey].status = false
-			ipToApi[ip] = null
-			res.status(429).send()
-		}
-		else
-			res.status(502).send()
+		// if (error.message.indexOf('insufficient_quota') != -1) {
+		// global.console.log("移除无效key：" + apiKey)
+		removeApiKey(apiKey)
+		apiKeyMap[apiKey].status = false
+		ipToApi[ip] = null
+		res.status(500).send()
+		// }
+		// else
+		// res.status(502).send()
 		// apiKeyStatus = false
 		// res.write(JSON.stringify(error))
 	}
@@ -196,7 +196,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 	}
 })
 
-router.get('/apiKeyStatus', auth, async (req, res) => {
+router.post('/apiKeyStatus', auth, async (req, res) => {
 	res.setHeader('Content-Type', 'application/json');
 	let tmp = {}
 	for (let i in apiKeyMap) {
@@ -210,7 +210,7 @@ router.get('/apiKeyStatus', auth, async (req, res) => {
 	res.send(JSON.stringify(tmp, null, 2))
 })
 
-router.get('/ipToApi', auth, async (req, res) => {
+router.post('/ipToApi', auth, async (req, res) => {
 	res.setHeader('Content-Type', 'application/json');
 	let tmp = {}
 	for (let i in ipToApi) {
