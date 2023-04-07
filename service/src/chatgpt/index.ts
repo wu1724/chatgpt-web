@@ -90,16 +90,16 @@ let api : ChatGPTAPI | ChatGPTUnofficialProxyAPI
 	}
 })()
 
-let ipToApiObj = {}
+let ApiObj = {}
 
-async function chatReplyProcess(options : RequestOptions, ip) {
+async function chatReplyProcess(options : RequestOptions) {
 	// let tmp = options
 	// setupProxy(options)
 	// global.console.log(options)
 	// let myapi = new ChatGPTAPI({ ...options })
 	// global.console.log(options, myapi)
 	// options = tmp
-	let myapi = getApiObj(options.apiKey, ip)
+	let myapi = getApiObj(options.apiKey)
 	const { message, lastContext, process, systemMessage } = options
 
 	try {
@@ -134,9 +134,9 @@ async function chatReplyProcess(options : RequestOptions, ip) {
 	}
 }
 
-function getApiObj(apiKey, ip) {
-	let myapi = ipToApiObj[ip]
-	if(myapi && myapi.apiKey == apiKey)
+function getApiObj(apiKey) {
+	let myapi = ApiObj[apiKey]
+	if (myapi && myapi.apiKey == apiKey)
 		return myapi
 
 	const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
@@ -168,7 +168,7 @@ function getApiObj(apiKey, ip) {
 	setupProxy(options)
 
 	myapi = new ChatGPTAPI({ ...options })
-	ipToApiObj[ip] = myapi
+	ApiObj[apiKey] = myapi
 	return myapi
 }
 

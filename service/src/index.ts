@@ -16,10 +16,10 @@ let apiKeyStatus = true
 let apiKeys = process.env.OPENAI_API_KEY.split("\n")
 // global.console.log(process.env.OPENAI_API_KEY)
 let apiKeyMap = {}
-if (localApiKeyMap) {
-	let { default: _, ...tmp } = localApiKeyMap;
-	apiKeyMap = tmp
-}
+// if (localApiKeyMap) {
+// 	let { default: _, ...tmp } = localApiKeyMap;
+// 	apiKeyMap = tmp
+// }
 // global.console.log(apiKeyMap)
 let apiCanUse = []
 let ipToApi = {}
@@ -32,7 +32,8 @@ apiKeys.forEach(e => {
 	fetchBalance(e).then(res => {
 		// global.console.log(res)
 		apiKeyMap[e]['usage'] = res
-		if (res < 0 || res > 5) {
+		// if (res < 0 || res > 5) {
+		if (res < 0) {
 			apiKeyMap[e]['status'] = false
 		}
 		else apiKeyMap[e]['status'] = true
@@ -173,7 +174,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 			},
 			systemMessage,
 			apiKey
-		}, ip)
+		})
 		apiKeyStatus = true
 	}
 	catch (error) {
