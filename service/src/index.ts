@@ -70,7 +70,7 @@ setInterval(() => {
 		})
 		// }
 	}
-}, 10000)
+}, 60000)
 
 // setTimeout(()=>{
 // global.console.log(apiKeyMap)
