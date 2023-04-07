@@ -58,20 +58,20 @@ setInterval(() => {
 setInterval(() => {
 	let i = 0;
 	for (let apiKey in apiKeyMap) {
-		if (apiKeyMap[apiKey].status) {
-			setTimeout(() => {
-				checkBilling(apiKey).then(res => {
-					// global.console.log(res)
-					apiKeyMap[apiKey]['total'] = res[0]
-					apiKeyMap[apiKey]['usage'] = res[1]
-					apiKeyMap[apiKey]['remain'] = res[2]
-					if (res[2] < 0) {
-						apiKeyMap[apiKey]['status'] = false
-					}
-					else apiKeyMap[apiKey]['status'] = true
-				})
-			}, 3000 * i++)
-		}
+		// if (apiKeyMap[apiKey].status) {
+		setTimeout(() => {
+			checkBilling(apiKey).then(res => {
+				// global.console.log(res)
+				apiKeyMap[apiKey]['total'] = res[0]
+				apiKeyMap[apiKey]['usage'] = res[1]
+				apiKeyMap[apiKey]['remain'] = res[2]
+				if (res[2] < 0) {
+					apiKeyMap[apiKey]['status'] = false
+				}
+				else apiKeyMap[apiKey]['status'] = true
+			})
+		}, 3000 * i++)
+		// }
 	}
 }, 60000)
 
