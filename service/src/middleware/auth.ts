@@ -1,3 +1,4 @@
+import { secretKey } from 'src'
 import { isNotEmptyString } from '../utils/is'
 
 const auth = async (req, res, next) => {
@@ -5,7 +6,8 @@ const auth = async (req, res, next) => {
   if (isNotEmptyString(AUTH_SECRET_KEY)) {
     try {
       const Authorization = req.header('Authorization')
-      if (!Authorization || Authorization.replace('Bearer ', '').trim() !== AUTH_SECRET_KEY.trim())
+      // if (!Authorization || Authorization.replace('Bearer ', '').trim() !== AUTH_SECRET_KEY.trim())
+      if (!Authorization || secretKey.indexOf(Authorization.replace('Bearer ', '').trim()) == -1)
         throw new Error('Error: 无访问权限 | No access rights')
       next()
     }

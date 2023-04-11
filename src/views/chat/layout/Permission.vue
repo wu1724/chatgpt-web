@@ -57,14 +57,17 @@ function handlePress(event: KeyboardEvent) {
       <div class="space-y-4">
         <header class="space-y-2">
           <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-neutral-200">
-            403
+            <!-- 403 -->
           </h2>
           <p class="text-base text-center text-slate-500 dark:text-slate-500">
-            {{ $t('common.unauthorizedTips') }}
+            {{ $t('common.notLogin') }}
+            <!-- {{ $t('common.unauthorizedTips') }} -->
           </p>
           <Icon403 class="w-[200px] m-auto" />
         </header>
-        <NInput v-model:value="token" type="password" placeholder="" @keypress="handlePress" />
+        <NInput v-model:value="token" type="email" placeholder="邮箱" @keypress="handlePress" />
+				<NButton>发送验证码</NButton>
+        <NInput v-model:value="token" type="password" placeholder="验证码" @keypress="handlePress" />
         <NButton
           block
           type="primary"

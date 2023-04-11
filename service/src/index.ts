@@ -9,6 +9,13 @@ import { fetchBalance, checkBilling } from './utils'
 import { rand } from '@vueuse/core'
 import localApiKeyMap from 'apiKeyMap.json'
 import fs from 'fs'
+
+export let secretKey = fs.readFileSync('secretKey.txt', 'utf-8').split("\n");
+// global.console.log(secretKey);
+setInterval(()=>{
+	secretKey = fs.readFileSync('secretKey.txt', 'utf-8').split("\n");
+}, 5000)
+
 const app = express()
 const router = express.Router()
 const localFileName = 'apiKeyMap.json'
@@ -264,7 +271,8 @@ router.post('/verify', async (req, res) => {
 		if (!token)
 			throw new Error('Secret key is empty')
 
-		if (process.env.AUTH_SECRET_KEY !== token)
+		// if (process.env.AUTH_SECRET_KEY !== token)
+		if(secretKey.indexOf(token) == -1)
 			throw new Error('密钥无效 | Secret key is invalid')
 
 		res.send({ status: 'Success', message: 'Verify successfully', data: null })
